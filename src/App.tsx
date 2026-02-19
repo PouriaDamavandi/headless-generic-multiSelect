@@ -1,17 +1,6 @@
-import { UserMultiSelect } from "@/components/ui/molecules/multiSelect";
+import { MultiSelect } from "@/components/ui/molecules/multi-select/multi-select";
 import { useState } from "react";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-};
-
-const users: User[] = Array.from({ length: 50 }, (_, i) => ({
-  id: i + 1,
-  name: `User ${i + 1}`,
-  email: `user${i + 1}@test.com`,
-}));
+import { users, type User } from "@/lib/users";
 
 export default function App() {
   const [selected, setSelected] = useState<User[]>([]);
@@ -22,7 +11,15 @@ export default function App() {
         Headless MultiSelect
       </h1>
 
-      <UserMultiSelect users={users} value={selected} onChange={setSelected} />
+      <MultiSelect<User>
+        items={users}
+        value={selected}
+        onChange={setSelected}
+        identifier="id"
+        searchBy={["name", "email"]}
+        min={0}
+        max={3}
+      />
     </div>
   );
 }

@@ -6,19 +6,12 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useDebounce } from "@/hooks/use-debounce";
+import type {
+  HeadlessMultiSelectProps,
+  HeadlessMultiSelectApi,
+} from "./headless-multi-select.types";
 
-export type MultiSelectProps<T> = {
-  items?: T[];
-  value: T[];
-  onChange: (value: T[]) => void;
-  identifier: keyof T;
-  searchBy: (keyof T)[];
-  min?: number;
-  max?: number;
-  loadOptions?: (query: string) => Promise<T[]>;
-};
-
-export function useMultiSelect<T>({
+export function useHeadlessMultiSelect<T>({
   items = [],
   value,
   onChange,
@@ -27,29 +20,26 @@ export function useMultiSelect<T>({
   min = 0,
   max,
   loadOptions,
-}: MultiSelectProps<T>) {
+}: HeadlessMultiSelectProps<T>): HeadlessMultiSelectApi<T> {
   const [searchQuery, setSearchQuery] = useState("");
-
   const debouncedQuery = useDebounce(searchQuery, 300);
 
   const [internalItems, setInternalItems] = useState<T[]>(items);
-
   const [loading, setLoading] = useState(false);
-
   const [focusedIndex, setFocusedIndex] = useState(0);
 
-  // async mode
+  // Async mode
   useEffect(() => {
     if (!loadOptions) return;
-    let active = true;
 
-    Promise.resolve().then(() => setLoading(true));
+    let active = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLoading(true); // immediately show loading
 
     loadOptions(debouncedQuery).then((res) => {
-      if (active) {
-        setInternalItems(res);
-        setLoading(false);
-      }
+      if (!active) return;
+      setInternalItems(res);
+      setLoading(false);
     });
 
     return () => {
@@ -59,13 +49,19 @@ export function useMultiSelect<T>({
 
   const sourceItems = loadOptions ? internalItems : items;
 
+  // isSelected: use identifier if available, otherwise fallback to reference equality
   const isSelected = useCallback(
-    (item: T) => value.some((v) => v[identifier] === item[identifier]),
+    (item: T) => {
+      if (identifier) {
+        return value.some((v) => v[identifier] === item[identifier]);
+      }
+      // No identifier – fallback to strict equality (object identity)
+      return value.some((v) => v === item);
+    },
     [value, identifier],
   );
 
   const canSelectMore = !max || value.length < max;
-
   const canUnselect = value.length > min;
 
   const toggle = useCallback(
@@ -74,7 +70,12 @@ export function useMultiSelect<T>({
 
       if (exists) {
         if (!canUnselect) return;
-        onChange(value.filter((v) => v[identifier] !== item[identifier]));
+        if (identifier) {
+          onChange(value.filter((v) => v[identifier] !== item[identifier]));
+        } else {
+          // No identifier – filter by reference equality
+          onChange(value.filter((v) => v !== item));
+        }
       } else {
         if (!canSelectMore) return;
         onChange([...value, item]);
@@ -84,7 +85,11 @@ export function useMultiSelect<T>({
   );
 
   const filteredItems = useMemo(() => {
+    // If using async loading, the server already filtered
     if (loadOptions) return sourceItems;
+
+    // If no search criteria, return all items (no filtering)
+    if (!searchBy || searchBy.length === 0) return sourceItems;
 
     const lower = debouncedQuery.toLowerCase();
 
@@ -98,12 +103,10 @@ export function useMultiSelect<T>({
       e.preventDefault();
       setFocusedIndex((prev) => Math.min(prev + 1, filteredItems.length - 1));
     }
-
     if (e.key === "ArrowUp") {
       e.preventDefault();
       setFocusedIndex((prev) => Math.max(prev - 1, 0));
     }
-
     if (e.key === "Enter") {
       e.preventDefault();
       const item = filteredItems[focusedIndex];
