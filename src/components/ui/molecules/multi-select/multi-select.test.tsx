@@ -53,8 +53,8 @@ describe("MultiSelect", () => {
     const user = userEvent.setup();
     render(<TestHarness />);
 
-    const input = screen.getByRole("textbox");
-    await user.type(input, "User 5");
+    const input = screen.getByRole("combobox", { name: "Search options" });
+    await user.type(input, "user5@test.com");
 
     // Wait for filtering to remove User 1
     await waitFor(() => {
@@ -84,7 +84,10 @@ describe("MultiSelect", () => {
     });
     expect(asyncLoad).toHaveBeenCalledWith("");
 
-    await user.type(screen.getByRole("textbox"), "User 3");
+    await user.type(
+      screen.getByRole("combobox", { name: "Search options" }),
+      "User 3",
+    );
 
     // Wait for the debounced loadOptions to be called with "User 3"
     await waitFor(() => {
@@ -98,11 +101,56 @@ describe("MultiSelect", () => {
     });
   });
 
+  test("recovers from a rejected async load", async () => {
+    const loadOptions = vi.fn().mockRejectedValue(new Error("Request failed"));
+    render(<TestHarness items={undefined} loadOptions={loadOptions} />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Request failed");
+    expect(screen.queryByText("Loading...")).not.toBeInTheDocument();
+  });
+
+  test("does not select when max is zero", async () => {
+    const user = userEvent.setup();
+    render(<TestHarness max={0} />);
+
+    await user.click(screen.getByText(/^⬜ User 1$/));
+
+    expect(screen.getByText(/^⬜ User 1$/)).toBeInTheDocument();
+  });
+
+  test("clamps keyboard focus after filtering", async () => {
+    const user = userEvent.setup();
+    render(<TestHarness />);
+
+    const input = screen.getByRole("combobox", { name: "Search options" });
+    await user.click(input);
+    await user.keyboard("{ArrowDown}{ArrowDown}{ArrowDown}");
+    await user.type(input, "user5@test.com");
+
+    await waitFor(() => {
+      expect(screen.queryByText(/^⬜ User 1$/)).not.toBeInTheDocument();
+    });
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByText(/^✅ User 5$/)).toBeInTheDocument();
+  });
+
+  test("exposes accessible multiselect semantics", () => {
+    render(<TestHarness />);
+
+    expect(screen.getByRole("listbox", { name: "Options" })).toHaveAttribute(
+      "aria-multiselectable",
+      "true",
+    );
+    expect(screen.getAllByRole("option")).toHaveLength(users.length);
+    expect(screen.getByRole("combobox", { name: "Search options" })).toBeInTheDocument();
+  });
+
   test("supports keyboard navigation", async () => {
     const user = userEvent.setup();
     render(<TestHarness />);
 
-    const input = screen.getByRole("textbox");
+    const input = screen.getByRole("combobox", { name: "Search options" });
     await user.click(input);
 
     await user.keyboard("{Enter}");

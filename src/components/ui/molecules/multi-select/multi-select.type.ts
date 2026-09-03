@@ -1,9 +1,13 @@
 import type {
   HeadlessMultiSelectProps,
   HeadlessMultiSelectApi,
-} from "@/components/headless/multi-select/headless-multi-select.types";
+} from "../../../headless/multi-select/headless-multi-select.types";
 import type { ReactNode } from "react";
 
-export type MultSelectProps<T> = HeadlessMultiSelectProps<T> & {
+export type MultiSelectProps<T> = HeadlessMultiSelectProps<T> & {
   children?: (api: HeadlessMultiSelectApi<T>) => ReactNode;
+  getOptionLabel?: (item: T) => string;
 };
+
+/** @deprecated Use MultiSelectProps. */
+export type MultSelectProps<T> = MultiSelectProps<T>;

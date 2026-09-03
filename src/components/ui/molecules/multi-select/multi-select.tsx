@@ -1,7 +1,8 @@
+import { useId } from "react";
 import { HeadlessMultiSelect } from "@/components/headless/multi-select/headless-multi-select";
 import { Input } from "../../atoms/input";
 import { Button } from "../../atoms/button";
-import type { MultSelectProps } from "./multi-select.type";
+import type { MultiSelectProps } from "./multi-select.type";
 
 export function MultiSelect<T>({
   items,
@@ -13,7 +14,9 @@ export function MultiSelect<T>({
   max,
   loadOptions,
   children,
-}: MultSelectProps<T>) {
+  getOptionLabel,
+}: MultiSelectProps<T>) {
+  const listboxId = useId();
   return (
     <HeadlessMultiSelect<T>
       items={items}
@@ -35,20 +38,48 @@ export function MultiSelect<T>({
               value={api.searchQuery}
               onChange={(e) => api.setSearchQuery(e.target.value)}
               onKeyDown={api.handleKeyDown}
+              role="combobox"
+              aria-label="Search options"
+              aria-controls={listboxId}
+              aria-activedescendant={
+                api.filteredItems.length > 0
+                  ? `${listboxId}-option-${api.focusedIndex}`
+                  : undefined
+              }
               placeholder="Search..."
             />
 
             {value.length > 0 && (
-              <Button variant="destructive" onClick={api.clear}>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={api.clear}
+                aria-label="Clear selected items"
+              >
                 Clear All
               </Button>
             )}
 
-            <div tabIndex={0} className="space-y-1 max-h-60 overflow-auto">
+            <div
+              id={listboxId}
+              role="listbox"
+              aria-label="Options"
+              aria-multiselectable="true"
+              aria-busy={api.loading}
+              className="space-y-1 max-h-60 overflow-auto"
+            >
               {api.loading ? (
-                <div className="text-gray-400 px-2 py-1">Loading...</div>
+                <div role="status" className="text-gray-400 px-2 py-1">
+                  Loading...
+                </div>
+              ) : api.error ? (
+                <div role="alert" className="text-red-600 px-2 py-1">
+                  {api.error.message}
+                </div>
               ) : api.filteredItems.length === 0 ? (
-                <div className="text-gray-400 px-2 py-1">No results</div>
+                <div role="status" className="text-gray-400 px-2 py-1">
+                  No results
+                </div>
               ) : (
                 api.filteredItems.map((item, index) => {
                   const selected = api.isSelected(item);
@@ -60,13 +91,19 @@ export function MultiSelect<T>({
                     : `item-${index}`;
 
                   // Safely get display label – use first searchBy key or fallback to a stringified item
-                  const displayLabel = searchBy?.[0]
-                    ? String(item[searchBy[0]])
-                    : JSON.stringify(item);
+                  const displayLabel = getOptionLabel
+                    ? getOptionLabel(item)
+                    : searchBy?.[0]
+                      ? String(item[searchBy[0]])
+                      : JSON.stringify(item);
 
                   return (
                     <div
                       key={itemKey}
+                      id={`${listboxId}-option-${index}`}
+                      role="option"
+                      aria-selected={selected}
+                      aria-disabled={!selected && !api.canSelectMore}
                       onClick={() => api.toggle(item)}
                       className={`cursor-pointer px-2 py-1 rounded flex items-center justify-between ${
                         isFocused ? "bg-gray-200" : ""
@@ -78,17 +115,6 @@ export function MultiSelect<T>({
                       <span>
                         {selected ? "✅" : "⬜"} {displayLabel}
                       </span>
-                      {selected && api.canUnselect && (
-                        <span
-                          className="text-sm text-red-500 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            api.toggle(item);
-                          }}
-                        >
-                          ✕
-                        </span>
-                      )}
                     </div>
                   );
                 })

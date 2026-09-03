@@ -5,6 +5,7 @@ import { users, type User } from "@/lib/users";
 
 const meta: Meta<typeof MultiSelect<User>> = {
   title: "UI/Molecules/MultiSelect",
+  tags: ["autodocs"],
   component: MultiSelect,
   parameters: {
     docs: {

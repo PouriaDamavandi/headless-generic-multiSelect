@@ -31,6 +31,7 @@ export type HeadlessMultiSelectApi<T> = {
   clear: () => void;
   canSelectMore: boolean;
   canUnselect: boolean;
-  handleKeyDown: KeyboardEventHandler<HTMLDivElement>;
+  handleKeyDown: KeyboardEventHandler<HTMLElement>;
   loading: boolean;
+  error: Error | null;
 };

@@ -1,0 +1,32 @@
+{
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "allowImportingTsExtensions": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "types": ["react", "react-dom"]
+  },
+  "include": [
+    "src/index.ts",
+    "src/styles.d.ts",
+    "src/components/headless/**/*.ts",
+    "src/components/headless/**/*.tsx",
+    "src/components/ui/atoms/**/*.tsx",
+    "src/components/ui/molecules/multi-select/multi-select.tsx",
+    "src/components/ui/molecules/multi-select/multi-select.type.ts",
+    "src/hooks/**/*.ts",
+    "src/lib/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.test.tsx",
+    "src/**/*.spec.ts",
+    "src/**/*.spec.tsx",
+    "src/**/*.stories.ts",
+    "src/**/*.stories.tsx"
+  ]
+}

@@ -26,7 +26,8 @@ export function useHeadlessMultiSelect<T>({
 
   const [internalItems, setInternalItems] = useState<T[]>(items);
   const [loading, setLoading] = useState(false);
-  const [focusedIndex, setFocusedIndex] = useState(0);
+  const [rawFocusedIndex, setRawFocusedIndex] = useState(0);
+  const [error, setError] = useState<Error | null>(null);
 
   // Async mode
   useEffect(() => {
@@ -35,12 +36,25 @@ export function useHeadlessMultiSelect<T>({
     let active = true;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true); // immediately show loading
+    setError(null);
 
-    loadOptions(debouncedQuery).then((res) => {
-      if (!active) return;
-      setInternalItems(res);
-      setLoading(false);
-    });
+    Promise.resolve()
+      .then(() => loadOptions(debouncedQuery))
+      .then((res) => {
+        if (!active) return;
+        setInternalItems(res);
+      })
+      .catch((reason: unknown) => {
+        if (!active) return;
+        setError(
+          reason instanceof Error
+            ? reason
+            : new Error("Unable to load options."),
+        );
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
 
     return () => {
       active = false;
@@ -61,7 +75,7 @@ export function useHeadlessMultiSelect<T>({
     [value, identifier],
   );
 
-  const canSelectMore = !max || value.length < max;
+  const canSelectMore = max === undefined || value.length < max;
   const canUnselect = value.length > min;
 
   const toggle = useCallback(
@@ -98,14 +112,21 @@ export function useHeadlessMultiSelect<T>({
     );
   }, [sourceItems, searchBy, debouncedQuery, loadOptions]);
 
-  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+  const focusedIndex = Math.min(
+    rawFocusedIndex,
+    Math.max(filteredItems.length - 1, 0),
+  );
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setFocusedIndex((prev) => Math.min(prev + 1, filteredItems.length - 1));
+      setRawFocusedIndex((prev) =>
+        Math.min(prev + 1, Math.max(filteredItems.length - 1, 0)),
+      );
     }
     if (e.key === "ArrowUp") {
       e.preventDefault();
-      setFocusedIndex((prev) => Math.max(prev - 1, 0));
+      setRawFocusedIndex((prev) => Math.max(prev - 1, 0));
     }
     if (e.key === "Enter") {
       e.preventDefault();
@@ -130,5 +151,6 @@ export function useHeadlessMultiSelect<T>({
     focusedIndex,
     handleKeyDown,
     loading,
+    error,
   };
 }
