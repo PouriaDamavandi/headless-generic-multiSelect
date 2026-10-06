@@ -118,6 +118,35 @@ describe("MultiSelect", () => {
     expect(screen.getByText(/^⬜ User 1$/)).toBeInTheDocument();
   });
 
+  test("enforces minimum and maximum selection boundaries", async () => {
+    const user = userEvent.setup();
+    render(<TestHarness min={1} max={1} />);
+
+    await user.click(screen.getByText(/^⬜ User 1$/));
+
+    const selectedUser = screen.getByRole("option", { name: /^✅ User 1$/ });
+    expect(selectedUser).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("option", { name: /^⬜ User 2$/ })).toHaveAttribute(
+      "aria-disabled",
+      "true",
+    );
+
+    await user.click(selectedUser);
+    await user.click(screen.getByRole("option", { name: /^⬜ User 2$/ }));
+
+    expect(screen.getByText(/^✅ User 1$/)).toBeInTheDocument();
+    expect(screen.getByText(/^⬜ User 2$/)).toBeInTheDocument();
+  });
+
+  test("rejects invalid selection constraints", () => {
+    expect(() => render(<TestHarness min={2} max={1} />)).toThrow(
+      "min cannot be greater than max",
+    );
+    expect(() => render(<TestHarness min={-1} />)).toThrow(
+      "min must be a non-negative integer",
+    );
+  });
+
   test("clamps keyboard focus after filtering", async () => {
     const user = userEvent.setup();
     render(<TestHarness />);
@@ -144,6 +173,56 @@ describe("MultiSelect", () => {
     );
     expect(screen.getAllByRole("option")).toHaveLength(users.length);
     expect(screen.getByRole("combobox", { name: "Search options" })).toBeInTheDocument();
+  });
+
+  test("supports a custom render prop", async () => {
+    const user = userEvent.setup();
+    render(
+      <TestHarness>
+        {({ filteredItems, isSelected, toggle }) => (
+          <button type="button" onClick={() => toggle(filteredItems[0])}>
+            {isSelected(filteredItems[0]) ? "Selected" : "Select"}
+          </button>
+        )}
+      </TestHarness>,
+    );
+
+    await user.click(screen.getByRole("button", { name: "Select" }));
+
+    expect(screen.getByRole("button", { name: "Selected" })).toBeInTheDocument();
+  });
+
+  test("ignores stale async responses", async () => {
+    const user = userEvent.setup();
+    let resolveInitial: (items: User[]) => void;
+    let resolveSearch: (items: User[]) => void;
+    const initial = new Promise<User[]>((resolve) => {
+      resolveInitial = resolve;
+    });
+    const search = new Promise<User[]>((resolve) => {
+      resolveSearch = resolve;
+    });
+    const loadOptions = vi.fn((query: string) =>
+      query === "User 2" ? search : initial,
+    );
+
+    render(<TestHarness items={undefined} loadOptions={loadOptions} />);
+
+    await waitFor(() => expect(loadOptions).toHaveBeenCalledWith(""));
+    await user.type(
+      screen.getByRole("combobox", { name: "Search options" }),
+      "User 2",
+    );
+    await waitFor(() => expect(loadOptions).toHaveBeenCalledWith("User 2"));
+
+    resolveSearch!([users[1]]);
+    expect(await screen.findByText(/^⬜ User 2$/)).toBeInTheDocument();
+
+    resolveInitial!([users[0]]);
+    await waitFor(() => {
+      expect(screen.getByText(/^⬜ User 2$/)).toBeInTheDocument();
+      expect(screen.queryByText(/^⬜ User 1$/)).not.toBeInTheDocument();
+    });
   });
 
   test("supports keyboard navigation", async () => {
