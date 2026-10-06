@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This repository publishes `headless-generic-multiselect`: a generic React multiselect with a headless hook/render-prop API and an optional styled UI.
+This repository publishes `react-headless-multiselect`: a generic React multiselect with a headless hook/render-prop API and an optional styled UI.
 
 ## Architecture
 
@@ -18,17 +18,11 @@ This repository publishes `headless-generic-multiselect`: a generic React multis
 - Target version: stable `0.1.0`.
 - Release only after CI, package contents, and clean-install checks succeed.
 
-## Current release blockers
+## Current release status
 
-1. Install dependencies matching the edited manifest/lockfile, then repair and run ESLint.
-2. Handle rejected `loadOptions` calls.
-3. Correct `max={0}` behavior.
-4. Reset or clamp keyboard focus when visible results change.
-5. Implement accessible default UI semantics and tests.
-6. Eliminate Storybook addon-resolution warnings.
-7. Ensure every documentation link shipped in the npm package resolves.
-
-See [BUGS.md](./BUGS.md) for behavior detail and [RELEASE.md](./RELEASE.md) for publishing checks.
+The local release checks pass: lint, tests, demo/package builds, Storybook build,
+and npm package dry run. Before publishing, confirm the release commit passes CI
+and follow [RELEASE.md](./RELEASE.md).
 
 ## Fast task briefing
 

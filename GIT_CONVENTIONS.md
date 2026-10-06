@@ -209,7 +209,7 @@ For lint:
 pnpm lint
 ```
 
-Current note: `pnpm lint` is known to fail because of the missing `typescript-eslint` package. See [BUGS.md](./BUGS.md).
+Current note: `pnpm lint` passes with the checked-in dependency set.
 
 ## Commit Hygiene
 

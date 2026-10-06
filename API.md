@@ -80,6 +80,9 @@ Maximum number of selected items.
 
 `max={0}` prevents all selection. `undefined` means no maximum.
 
+`min` and `max` must be non-negative integers. When both are supplied,
+`min` cannot exceed `max`; invalid constraints throw a `RangeError`.
+
 ### `loadOptions?: (query: string) => Promise<T[]>`
 
 Async option loader.
