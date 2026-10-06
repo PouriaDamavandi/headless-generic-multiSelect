@@ -1,5 +1,5 @@
 {
-  "name": "headless-generic-multiselect",
+  "name": "react-headless-multiselect",
   "version": "0.1.0",
   "description": "A generic headless React multiselect component with an optional default UI.",
   "type": "module",
@@ -63,7 +63,6 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.574.0",
-    "radix-ui": "^1.4.3",
     "tailwind-merge": "^3.5.0"
   },
   "peerDependencies": {
