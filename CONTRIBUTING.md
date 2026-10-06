@@ -28,10 +28,8 @@ pnpm storybook
 | --- | --- | --- |
 | `pnpm test` | Run unit tests. | Passing. |
 | `pnpm build` | Type-check and build the Vite app. | Passing. |
-| `pnpm build-storybook` | Build Storybook docs/examples. | Passing with warnings. |
-| `pnpm lint` | Run ESLint. | Currently broken. |
-
-See [BUGS.md](./BUGS.md) before relying on lint.
+| `pnpm build-storybook` | Build Storybook docs/examples. | Passing. |
+| `pnpm lint` | Run ESLint. | Passing. |
 
 ## Development Workflow
 

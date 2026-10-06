@@ -2,7 +2,7 @@
 
 ## Project
 
-`headless-generic-multiselect` is a React + TypeScript component library with a demo application.
+`react-headless-multiselect` is a React + TypeScript component library with a demo application.
 
 - Headless behavior: `src/components/headless/multi-select/`
 - Default UI: `src/components/ui/molecules/multi-select/`
