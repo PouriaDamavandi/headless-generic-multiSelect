@@ -11,6 +11,22 @@ import type {
   HeadlessMultiSelectApi,
 } from "./headless-multi-select.types";
 
+function validateConstraints(min: number, max: number | undefined) {
+  if (!Number.isSafeInteger(min) || min < 0) {
+    throw new RangeError("min must be a non-negative integer.");
+  }
+
+  if (max === undefined) return;
+
+  if (!Number.isSafeInteger(max) || max < 0) {
+    throw new RangeError("max must be a non-negative integer.");
+  }
+
+  if (min > max) {
+    throw new RangeError("min cannot be greater than max.");
+  }
+}
+
 export function useHeadlessMultiSelect<T>({
   items = [],
   value,
@@ -21,6 +37,8 @@ export function useHeadlessMultiSelect<T>({
   max,
   loadOptions,
 }: HeadlessMultiSelectProps<T>): HeadlessMultiSelectApi<T> {
+  validateConstraints(min, max);
+
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebounce(searchQuery, 300);
 

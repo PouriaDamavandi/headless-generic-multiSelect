@@ -4,15 +4,7 @@
 
 The local release checks currently pass: lint, tests, app/package builds, Storybook build, and npm package dry run.
 
-## Remaining improvements
-
-### Storybook package-metadata warning
-
-`pnpm build-storybook` may warn that it cannot find `radix-ui` package metadata. The build succeeds; this is non-blocking and should be investigated during Storybook/dependency upgrades.
-
-### Constraint validation
-
-`min` and `max` are respected, including `max={0}`, but invalid combinations such as `min > max` are not validated. A future API version may add development warnings or documented normalization.
+## Remaining scope
 
 ### Rich keyboard interaction
 

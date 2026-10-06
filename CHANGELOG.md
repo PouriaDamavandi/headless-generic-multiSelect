@@ -11,8 +11,10 @@ This changelog is summarized from the git history of this repository.
 
 ### Changed
 
-- Renamed the package from `multiselectmobin-pouriadamavandi` to `headless-generic-multiselect`.
+- Renamed the package from `multiselectmobin-pouriadamavandi` to `react-headless-multiselect`.
 - Enabled Storybook autodocs tags for the multiselect story.
+- Replaced the Radix UI meta-package dependency with a native button implementation to remove Storybook's package-metadata warning.
+- Added validation for invalid selection constraints and focused coverage for stale async responses, constraints, render props, and option ARIA state.
 
 ## 2026-02-21
 

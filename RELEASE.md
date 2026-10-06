@@ -28,8 +28,8 @@ demo-dist/
 Package exports:
 
 ```tsx
-import { MultiSelect } from "headless-generic-multiselect";
-import "headless-generic-multiselect/style.css";
+import { MultiSelect } from "react-headless-multiselect";
+import "react-headless-multiselect/style.css";
 ```
 
 ## Release Checklist
@@ -122,7 +122,7 @@ React and React DOM are peer dependencies. Consumers must already have them inst
 The package exports a stylesheet at:
 
 ```text
-headless-generic-multiselect/style.css
+react-headless-multiselect/style.css
 ```
 
 Consumers should import it once in their app if they use the default UI.
