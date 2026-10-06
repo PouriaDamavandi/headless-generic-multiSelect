@@ -1,4 +1,4 @@
-# Headless Generic MultiSelect
+# React Headless MultiSelect
 
 A generic React + TypeScript multiselect component built with a headless core and a default UI wrapper.
 
@@ -48,14 +48,14 @@ The project demonstrates a reusable selection hook, render-prop customization, d
 Install from npm:
 
 ```bash
-pnpm add headless-generic-multiselect
+pnpm add react-headless-multiselect
 ```
 
 Import the component and default styles:
 
 ```tsx
-import { MultiSelect } from "headless-generic-multiselect";
-import "headless-generic-multiselect/style.css";
+import { MultiSelect } from "react-headless-multiselect";
+import "react-headless-multiselect/style.css";
 ```
 
 For local development of this repository, install dependencies:
@@ -106,7 +106,6 @@ Run lint:
 pnpm lint
 ```
 
-Note: lint currently fails because the ESLint config imports `typescript-eslint`, but that package is not installed. See [BUGS.md](./BUGS.md).
 
 ## Project Structure
 
@@ -225,8 +224,8 @@ When `loadOptions` is provided, the component treats loaded options as the sourc
 | `onChange` | `(value: T[]) => void` | Yes | Called with the next selected items. |
 | `identifier` | `keyof T` | No | Unique key used to compare items. Falls back to object reference equality. |
 | `searchBy` | `(keyof T)[]` | No | Keys used for local search and default display label. |
-| `min` | `number` | No | Minimum selected items. Defaults to `0`. |
-| `max` | `number` | No | Maximum selected items. |
+| `min` | `number` | No | Non-negative minimum selected items. Defaults to `0`. |
+| `max` | `number` | No | Non-negative maximum selected items; it must be at least `min`. |
 | `loadOptions` | `(query: string) => Promise<T[]>` | No | Async loader for remote/server-filtered options. |
 | `children` | `(api) => ReactNode` | No | Custom render function using the headless API. |
 
@@ -254,8 +253,8 @@ Last verified during project audit:
 
 - `pnpm test`: passing.
 - `pnpm build`: passing.
-- `pnpm build-storybook`: passing with warnings.
-- `pnpm lint`: failing due ESLint dependency/config mismatch.
+- `pnpm build-storybook`: passing.
+- `pnpm lint`: passing.
 
 See [BUGS.md](./BUGS.md) for current bugs and recommended fixes.
 
